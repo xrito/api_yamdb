@@ -38,7 +38,7 @@ class TitleSerializer(serializers.ModelSerializer):
     category = SlugRelatedField(slug_field='slug',
                                 required=True
                                 )
-    avg_rating = serializers.IntegerField(read_only=True, required=False)
+    rating = serializers.IntegerField(read_only=True, required=False)
 
     class Meta:
         model = Titles
@@ -82,7 +82,10 @@ class ReviewSerializer(serializers.ModelSerializer):
         slug_field='name',
         read_only=True,
     )
-    author = SlugRelatedField(slug_field='username', read_only=True)
+    author = serializers.SlugRelatedField(
+        slug_field='username',
+        read_only=True
+    )
 
     class Meta:
         fields = '__all__'
@@ -94,7 +97,10 @@ class CommentSerializer(serializers.ModelSerializer):
         slug_field='text',
         read_only=True
     )
-    author = SlugRelatedField(slug_field='username', read_only=True)
+    author = serializers.SlugRelatedField(
+        slug_field='username',
+        read_only=True
+    )
 
     class Meta:
         fields = '__all__'

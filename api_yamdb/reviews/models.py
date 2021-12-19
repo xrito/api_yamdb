@@ -31,7 +31,6 @@ class Titles(models.Model):
         related_name='categories',
         on_delete=models.SET_NULL,
         null=True)
-    rating = models.IntegerField(blank=True, null=True)
 
     class Meta:
         constraints = [
@@ -43,7 +42,6 @@ class Titles(models.Model):
 
     def __str__(self):
         return self.name
-
 
 
 class GenreTitles(models.Model):
@@ -99,9 +97,13 @@ class Review(models.Model):
         db_index=True
     )
 
-    # class Meta:
-    #     # не дает повторно ставить  писать ревью
-    #     unique_together = ('author', 'titles')
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['author', 'titles'],
+                name='unique_title_author'
+            )
+        ]
 
     def __str__(self):
         return self.author.username

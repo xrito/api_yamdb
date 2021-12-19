@@ -58,7 +58,7 @@ class GenreViewSet(ListCreateDeleteViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Titles.objects.annotate(avg_rating=Avg('reviews__score'))
+    queryset = Titles.objects.annotate(rating=Avg('reviews__score'))
     serializer_class = TitleSerializer
     permission_classes = (AdminOrReadOnlyPermission,)
     filter_backends = (DjangoFilterBackend,)
@@ -75,8 +75,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         title_id = get_object_or_404(Titles, pk=self.kwargs.get('title_id'))
-        new_queryset = title_id.reviews.all()
-        return new_queryset
+        return title_id.reviews.all()
 
     def perform_create(self, serializer):
         title_id = get_object_or_404(Titles, pk=self.kwargs.get('title_id'))
@@ -93,12 +92,11 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         review_id = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
-        new_queryset = review_id.comments.all()
-        return new_queryset
+        return review_id.comments.all()
 
     def perform_create(self, serializer):
         review_id = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
-        serializer.save(author=self.request.user, title=review_id)
+        serializer.save(author=self.request.user, review=review_id)
 
 
 class UserViewSet(viewsets.ModelViewSet):
