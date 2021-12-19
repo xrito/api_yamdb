@@ -1,15 +1,19 @@
 import random
 import string
 
+
 from django.shortcuts import get_object_or_404
 from django.core.mail import send_mail
-from rest_framework import mixins, viewsets, status, permissions
+from django.db.models import Avg
+from django.contrib.auth import get_user_model
+from django_filters.rest_framework import DjangoFilterBackend
+
+from rest_framework import mixins, viewsets, filters, status, permissions
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework.decorators import api_view, permission_classes
-from django.contrib.auth import get_user_model
-
+from rest_framework.settings import api_settings
 
 from reviews.models import Categories, Comment, Genres, Review, Titles
 from users.utils import generate_auth_code
@@ -24,16 +28,42 @@ from .serializers import (CategorySerializer, CommentSerializer,
 User = get_user_model()
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
+class ListCreateDeleteViewSet(mixins.ListModelMixin,
+                              mixins.CreateModelMixin,
+                              mixins.DestroyModelMixin,
+                              viewsets.GenericViewSet):
     pass
 
 
-class GenreViewSet(viewsets.ModelViewSet):
-    pass
+class CategoryViewSet(ListCreateDeleteViewSet):
+    queryset = Categories.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = (AdminOrReadOnlyPermission,)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
+    lookup_fields = 'slug'
+    pagination_class = api_settings.DEFAULT_PAGINATION_CLASS
+
+
+class GenreViewSet(ListCreateDeleteViewSet):
+    queryset = Genres.objects.all()
+    serializer_class = GenreSerializer
+    permission_classes = (AdminOrReadOnlyPermission,)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
+    lookup_fields = 'slug'
+    pagination_class = api_settings.DEFAULT_PAGINATION_CLASS
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    pass
+    queryset = Titles.objects.annotate(rating=Avg('reviews__score'))
+    serializer_class = TitleSerializer
+    permission_classes = (AdminOrReadOnlyPermission,)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ('category__slug',
+                        'genre__slug',
+                        'name',
+                        'year')
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -43,8 +73,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         title_id = get_object_or_404(Titles, pk=self.kwargs.get('title_id'))
-        new_queryset = title_id.reviews.all()
-        return new_queryset
+        return title_id.reviews.all()
 
     def perform_create(self, serializer):
         title_id = get_object_or_404(Titles, pk=self.kwargs.get('title_id'))
@@ -61,12 +90,11 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         review_id = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
-        new_queryset = review_id.comments.all()
-        return new_queryset
+        return review_id.comments.all()
 
     def perform_create(self, serializer):
         review_id = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
-        serializer.save(author=self.request.user, title=review_id)
+        serializer.save(author=self.request.user, review=review_id)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -94,7 +122,8 @@ def send_auth_code(request):
         )
         email_subject = 'Ваш код подтверждения'
         email_message = f'Используйте код подтверждения {auth_code}, чтобы авторизоваться'
-        send_mail(subject=email_subject, message=email_message, recipient_list=[user.email], from_email=AUTH_FROM_EMAIL)
+        send_mail(subject=email_subject, message=email_message,
+                  recipient_list=[user.email], from_email=AUTH_FROM_EMAIL)
         return Response(
             {
                 'message': f'Сообщение успешно отправлено пользователю {username}'
