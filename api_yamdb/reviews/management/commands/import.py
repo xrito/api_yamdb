@@ -5,7 +5,7 @@ import csv
 
 from django.core.management.base import BaseCommand
 
-from reviews.models import Categories, Genres, Comment, Review, Titles
+from reviews.models import Category, Genre, Comment, Review, Title
 from users.models import User
 
 from glob import glob
@@ -26,19 +26,19 @@ class Command(BaseCommand):
                 for row in reader:
                     if os.path.basename(csv_file) == os.path.basename(
                             r'./static/data/category.csv'):
-                        category, created = Categories.objects.update_or_create(
+                        category, created = Category.objects.update_or_create(
                             id=int(row['id']), name=row['name'],
                             slug=row['slug']
                         )
                     if os.path.basename(csv_file) == os.path.basename(
                             r'./static/data/genre.csv'):
-                        genre, created = Genres.objects.update_or_create(
+                        genre, created = Genre.objects.update_or_create(
                             id=int(row['id']), name=row['name'],
                             slug=row['slug']
                         )
                     if os.path.basename(csv_file) == os.path.basename(
                             r'./static/data/titles.csv'):
-                        titles, created = Titles.objects.update_or_create(
+                        titles, created = Title.objects.update_or_create(
                             id=int(row['id']), name=row['name'],
                             year=row['year'], category_id=row['category']
                         )
