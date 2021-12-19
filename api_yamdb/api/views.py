@@ -1,6 +1,8 @@
 from django.shortcuts import get_object_or_404
 from django.db.models import Avg
-from rest_framework import mixins, viewsets
+from rest_framework import mixins, viewsets, filters
+from rest_framework.settings import api_settings
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.pagination import PageNumberPagination
 from reviews.models import Categories, Comment, Genres, Review, Titles
 from users.models import User
@@ -11,17 +13,42 @@ from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, ReviewSerializer, TitleSerializer, UserSerializer)
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
+class ListCreateDeleteViewSet(mixins.ListModelMixin,
+                              mixins.CreateModelMixin,
+                              mixins.DestroyModelMixin,
+                              viewsets.GenericViewSet):
     pass
 
 
-class GenreViewSet(viewsets.ModelViewSet):
-    pass
+class CategoryViewSet(ListCreateDeleteViewSet):
+    queryset = Categories.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = (CanEditAdminContent,)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
+    lookup_fields = 'slug'
+    pagination_class = api_settings.DEFAULT_PAGINATION_CLASS
+
+
+class GenreViewSet(ListCreateDeleteViewSet):
+    queryset = Genres.objects.all()
+    serializer_class = GenreSerializer
+    permission_classes = (CanEditAdminContent,)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
+    lookup_fields = 'slug'
+    pagination_class = api_settings.DEFAULT_PAGINATION_CLASS
 
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Titles.objects.annotate(avg_rating=Avg('reviews__score'))
     serializer_class = TitleSerializer
+    permission_classes = (CanEditAdminContent,)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ('category__slug',
+                        'genre__slug',
+                        'name',
+                        'year')
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
