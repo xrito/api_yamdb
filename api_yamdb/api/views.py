@@ -23,7 +23,7 @@ class ListCreateDeleteViewSet(mixins.ListModelMixin,
 class CategoryViewSet(ListCreateDeleteViewSet):
     queryset = Categories.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = (CanEditAdminContent,)
+    # permission_classes = (CanEditAdminContent,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_fields = 'slug'
@@ -33,7 +33,7 @@ class CategoryViewSet(ListCreateDeleteViewSet):
 class GenreViewSet(ListCreateDeleteViewSet):
     queryset = Genres.objects.all()
     serializer_class = GenreSerializer
-    permission_classes = (CanEditAdminContent,)
+    # permission_classes = (CanEditAdminContent,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_fields = 'slug'
@@ -43,7 +43,7 @@ class GenreViewSet(ListCreateDeleteViewSet):
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Titles.objects.annotate(avg_rating=Avg('reviews__score'))
     serializer_class = TitleSerializer
-    permission_classes = (CanEditAdminContent,)
+    # permission_classes = (CanEditAdminContent,)
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('category__slug',
                         'genre__slug',
@@ -54,7 +54,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     # permission_classes = (CanEditUserContentPermission,)
-    pagination_class = PageNumberPagination
+    # pagination_class = PageNumberPagination
 
     def get_queryset(self):
         title_id = get_object_or_404(Titles, pk=self.kwargs.get('title_id'))
