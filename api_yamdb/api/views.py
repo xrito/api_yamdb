@@ -23,7 +23,8 @@ from .permissions import (AdminOnlyPermission, AdminOrReadOnlyPermission,
                           AdminOrModeratorOrAuthorPermission)
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, ReviewSerializer, TitleSerializer,
-                          UserSerializer, AuthCodeSerializer, SendAuthCodeSerializer)
+                          UserSerializer, AuthCodeSerializer, SendAuthCodeSerializer,
+                          ProfileSerializer)
 
 User = get_user_model()
 
@@ -139,7 +140,7 @@ def get_token(request):
     if serializer.is_valid():
         username = request.data['username']
         user = get_object_or_404(User, username=username)
-        if(user.auth_code == request.data['confirmation_code']):
+        if user.auth_code == request.data['confirmation_code']:
             access_token = AccessToken.for_user(user)
             return Response(
                 {
@@ -157,5 +158,18 @@ def get_token(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ProfileViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
-    pass
+@api_view(['GET', 'PATCH'])
+@permission_classes([permissions.AllowAny])
+def profile(request):
+    if not request.user.is_authenticated:
+        return Response('Not authorized', status=status.HTTP_401_UNAUTHORIZED)
+    if request.method == 'GET':
+        serializer = ProfileSerializer(request.user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    serializer = ProfileSerializer(request.user, data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
