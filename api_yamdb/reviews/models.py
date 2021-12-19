@@ -3,7 +3,7 @@ from django.conf import settings
 
 
 class Categories(models.Model):
-    name = models.CharField(max_length=256)
+    name = models.CharField(unique=True, max_length=256)
     slug = models.SlugField(unique=True, max_length=50)
 
     def __str__(self):
@@ -11,7 +11,7 @@ class Categories(models.Model):
 
 
 class Genres(models.Model):
-    name = models.CharField(max_length=256)
+    name = models.CharField(unique=True, max_length=256)
     slug = models.SlugField(unique=True, max_length=50)
 
     def __str__(self):
@@ -33,8 +33,17 @@ class Titles(models.Model):
         null=True)
     rating = models.IntegerField(blank=True, null=True)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['name', 'category'],
+                name='unique_name_category'
+            )
+        ]
+
     def __str__(self):
         return self.name
+
 
 
 class GenreTitles(models.Model):
