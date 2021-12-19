@@ -2,7 +2,6 @@ from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 
 from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import get_user_model
 import datetime as dt
 
@@ -16,8 +15,25 @@ User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name', 'last_name', 'role', 'bio']
+        fields = ['username', 'email', 'first_name', 'last_name', 'bio', 'role']
         lookup_field = 'username'
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    username = serializers.RegexField(
+        regex=r"^[\w.@+-]+\Z", required=True, max_length=150,
+        validators=[UniqueValidator(queryset=User.objects.all())]
+    )
+    email = serializers.EmailField(
+        required=True, max_length=254,
+        validators=[UniqueValidator(queryset=User.objects.all())]
+    )
+    first_name = serializers.CharField(max_length=150)
+    last_name = serializers.CharField(max_length=150)
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'first_name', 'last_name', 'bio']
 
 
 class CategorySerializer(serializers.ModelSerializer):
