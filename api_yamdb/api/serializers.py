@@ -35,11 +35,11 @@ class GenreSerializer(serializers.ModelSerializer):
 class TitleSerializer(serializers.ModelSerializer):
     genre = SlugRelatedField(slug_field='slug',
                              many=True,
-                             required=True
-                             )
+                             required=True,
+                             queryset=Categories.objects.all())
     category = SlugRelatedField(slug_field='slug',
-                                required=True
-                                )
+                                required=True,
+                                queryset=Genres.objects.all())
     rating = serializers.IntegerField(read_only=True, required=False)
 
     class Meta:
