@@ -10,8 +10,7 @@ router = SimpleRouter()
 router.register('genres', GenreViewSet, basename='genres')
 router.register('titles', TitleViewSet, basename='titles')
 router.register('categories', CategoryViewSet, basename='categories')
-# router.register('users/me', ProfileViewSet, basename='profile')
-# router.register('users', UserViewSet)
+router.register('users', UserViewSet)
 router.register(
     r'titles/(?P<title_id>\d+)/reviews', ReviewViewSet, basename='reviews')
 router.register(
@@ -20,8 +19,8 @@ router.register(
 
 
 urlpatterns = [
+    path('v1/users/me/', profile, name='profile'),
     path('v1/', include(router.urls)),
     path('v1/auth/signup/', send_auth_code, name='send_auth_code'),
-    path('v1/auth/token/', get_token, name='get_access_token'),
-    path('v1/users/me/', profile, name='profile')
+    path('v1/auth/token/', get_token, name='get_access_token')
 ]

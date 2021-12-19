@@ -112,10 +112,18 @@ def send_auth_code(request):
     if serializer.is_valid():
         username = request.data['username']
         email = request.data['email']
-        user_exists = (User.objects.filter(username=username).exists()
-                       or User.objects.filter(email=email).exists())
-        if not user_exists:
+        username_exists = User.objects.filter(username=username).exists()
+        email_exists = User.objects.filter(email=email).exists()
+        if not username_exists and not email_exists:
             User.objects.create_user(email=email, username=username)
+        if not username_exists and email_exists:
+            return Response(
+                {'message': 'Вы не можете создать пользователя с этим email'},
+                status=status.HTTP_400_BAD_REQUEST)
+        if username_exists and not email_exists:
+            return Response(
+                {'message': 'Вы не можете создать пользователя с этим username'},
+                status=status.HTTP_400_BAD_REQUEST)
         auth_code = generate_auth_code(AUTH_CODE_LENGTH)
         user = User.objects.get(username=username)
         User.objects.filter(username=username).update(
@@ -127,7 +135,8 @@ def send_auth_code(request):
                   recipient_list=[user.email], from_email=AUTH_FROM_EMAIL)
         return Response(
             {
-                'message': f'Сообщение успешно отправлено пользователю {username}'
+                'email': f'{email}',
+                'username': f'{username}'
             },
             status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -153,7 +162,8 @@ def get_token(request):
             {
                 'error': 'Неверный код подтверждения',
                 'token': None
-            }
+            },
+            status=status.HTTP_400_BAD_REQUEST
         )
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
