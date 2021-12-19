@@ -16,7 +16,7 @@ User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name', 'last_name', 'role']
+        fields = ['username', 'email', 'first_name', 'last_name', 'role', 'bio']
         lookup_field = 'username'
 
 

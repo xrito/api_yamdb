@@ -155,3 +155,7 @@ def get_token(request):
             }
         )
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ProfileViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
+    pass

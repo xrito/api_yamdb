@@ -21,3 +21,7 @@ class User(AbstractUser):
         blank=True,
         max_length=5
     )
+    bio = models.CharField(
+        blank=True,
+        max_length=10000
+    )
