@@ -2,13 +2,13 @@ from django.urls import include, path
 from rest_framework.routers import SimpleRouter
 
 from api.views import (TitleViewSet, GenreViewSet, CategoryViewSet,
-                       UserViewSet, ReviewViewSet, CommentViewSet)
+                       ReviewViewSet, CommentViewSet, UserViewSet)
 
 router = SimpleRouter()
 router.register('titles', TitleViewSet)
-router.register('genres', GenreViewSet)
-router.register('categories', CategoryViewSet)
-router.register('users', UserViewSet)
+# router.register('genres', GenreViewSet)
+# router.register('categories', CategoryViewSet)
+# router.register('users', UserViewSet)
 router.register(
     r'titles/(?P<title_id>\d+)/reviews', ReviewViewSet, basename='reviews')
 router.register(

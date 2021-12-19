@@ -1,14 +1,14 @@
 from django.shortcuts import get_object_or_404
+from django.db.models import Avg
 from rest_framework import mixins, viewsets
 from rest_framework.pagination import PageNumberPagination
 from reviews.models import Categories, Comment, Genres, Review, Titles
 from users.models import User
 
-from .permissions import (CanEditAdminContent, CanEditUserContentPermission,
-                          CanReadPermission)
+# from .permissions import (CanEditAdminContent, CanEditUserContentPermission,
+#                           CanReadPermission)
 from .serializers import (CategorySerializer, CommentSerializer,
-                          GenreSerializer, ReviewSerializer, TitleSerializer,
-                          UserSerializer)
+                          GenreSerializer, ReviewSerializer, TitleSerializer, UserSerializer)
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -20,12 +20,13 @@ class GenreViewSet(viewsets.ModelViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    pass
+    queryset = Titles.objects.annotate(avg_rating=Avg('reviews__score'))
+    serializer_class = TitleSerializer
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = (CanEditUserContentPermission,)
+    # permission_classes = (CanEditUserContentPermission,)
     pagination_class = PageNumberPagination
 
     def get_queryset(self):
@@ -43,8 +44,8 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = (CanEditUserContentPermission,)
-    pagination_class = PageNumberPagination
+    # permission_classes = (CanEditUserContentPermission,)
+    # pagination_class = PageNumberPagination
 
     def get_queryset(self):
         review_id = get_object_or_404(Review, pk=self.kwargs.get('review_id'))

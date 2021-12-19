@@ -90,6 +90,10 @@ class Review(models.Model):
         db_index=True
     )
 
+    # class Meta:
+    #     # не дает повторно ставить  писать ревью
+    #     unique_together = ('author', 'titles')
+
     def __str__(self):
         return self.author.username
 
