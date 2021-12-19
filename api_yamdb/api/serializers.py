@@ -6,7 +6,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import get_user_model
 import datetime as dt
 
-from reviews.models import (Categories, Genres, GenreTitles, Titles, Review,
+from reviews.models import (Category, Genre, GenreTitle, Title, Review,
                             Comment)
 
 
@@ -22,37 +22,36 @@ class UserSerializer(serializers.ModelSerializer):
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
-        model = Categories
+        model = Category
         fields = '__all__'
 
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Genres
+        model = Genre
         fields = '__all__'
 
 
 class TitleSerializer(serializers.ModelSerializer):
     genre = SlugRelatedField(slug_field='slug',
-                             many=True,
                              required=True,
-                             queryset=Categories.objects.all())
+                             queryset=Genre.objects.all())
     category = SlugRelatedField(slug_field='slug',
                                 required=True,
-                                queryset=Genres.objects.all())
+                                queryset=Category.objects.all())
     rating = serializers.IntegerField(read_only=True, required=False)
 
     class Meta:
-        model = Titles
+        model = Title
         fields = '__all__'
 
         validators = [
             UniqueTogetherValidator(
-                queryset=GenreTitles.objects.all(),
+                queryset=GenreTitle.objects.all(),
                 fields=('title', 'genre')
             ),
             UniqueTogetherValidator(
-                queryset=Titles.objects.all(),
+                queryset=Title.objects.all(),
                 fields=('name', 'category')
             )
         ]
@@ -67,13 +66,13 @@ class TitleSerializer(serializers.ModelSerializer):
 
     def validate_genre(self, values):
         for value in values:
-            if not Genres.objects.filter(slug=value):
+            if not Genre.objects.filter(slug=value):
                 raise serializers.ValidationError(
                     'Такого жанра не существует!')
             return value
 
     def validate_category(self, value):
-        if not Categories.objects.filter(slug=value):
+        if not Category.objects.filter(slug=value):
             raise serializers.ValidationError(
                 'Такой категории не существует!')
         return value

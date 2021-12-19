@@ -15,7 +15,7 @@ from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.settings import api_settings
 
-from reviews.models import Categories, Comment, Genres, Review, Titles
+from reviews.models import Category, Comment, Genre, Review, Title
 from users.utils import generate_auth_code
 from api_yamdb.settings import AUTH_CODE_LENGTH, AUTH_FROM_EMAIL
 
@@ -36,7 +36,7 @@ class ListCreateDeleteViewSet(mixins.ListModelMixin,
 
 
 class CategoryViewSet(ListCreateDeleteViewSet):
-    queryset = Categories.objects.all()
+    queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = (AdminOrReadOnlyPermission,)
     filter_backends = (filters.SearchFilter,)
@@ -46,7 +46,7 @@ class CategoryViewSet(ListCreateDeleteViewSet):
 
 
 class GenreViewSet(ListCreateDeleteViewSet):
-    queryset = Genres.objects.all()
+    queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = (AdminOrReadOnlyPermission,)
     filter_backends = (filters.SearchFilter,)
@@ -56,7 +56,7 @@ class GenreViewSet(ListCreateDeleteViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Titles.objects.annotate(rating=Avg('reviews__score'))
+    queryset = Title.objects.annotate(rating=Avg('reviews__score'))
     serializer_class = TitleSerializer
     permission_classes = (AdminOrReadOnlyPermission,)
     filter_backends = (DjangoFilterBackend,)
@@ -72,11 +72,11 @@ class ReviewViewSet(viewsets.ModelViewSet):
     pagination_class = PageNumberPagination
 
     def get_queryset(self):
-        title_id = get_object_or_404(Titles, pk=self.kwargs.get('title_id'))
+        title_id = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
         return title_id.reviews.all()
 
     def perform_create(self, serializer):
-        title_id = get_object_or_404(Titles, pk=self.kwargs.get('title_id'))
+        title_id = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
         serializer.save(author=self.request.user, title=title_id)
 
     def perform_update(self, serializer):

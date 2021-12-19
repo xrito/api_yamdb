@@ -5,8 +5,8 @@ from .models import *
 
 # Register your models here.
 admin.site.register(Review)
-admin.site.register(Titles)
-admin.site.register(Categories)
-admin.site.register(Genres)
+admin.site.register(Title)
+admin.site.register(Category)
+admin.site.register(Genre)
 admin.site.register(Comment)
-admin.site.register(GenreTitles)
+admin.site.register(GenreTitle)
