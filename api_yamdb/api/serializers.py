@@ -1,13 +1,12 @@
-from rest_framework import serializers
-from rest_framework.relations import SlugRelatedField
-
-from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
-from django.contrib.auth import get_user_model
 import datetime as dt
 
-from reviews.models import (Category, Genre, GenreTitle, Title, Review,
-                            Comment)
+from django.contrib.auth import get_user_model
 
+from rest_framework import serializers
+from rest_framework.relations import SlugRelatedField
+from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
+
+from reviews.models import Category, Comment, Genre, GenreTitle, Review, Title
 
 User = get_user_model()
 
@@ -51,27 +50,29 @@ class ProfileSerializer(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = '__all__'
+        fields = ('name', 'slug',)
 
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
-        fields = '__all__'
+        fields = ('name', 'slug',)
 
 
 class TitleSerializer(serializers.ModelSerializer):
-    genre = serializers.SlugRelatedField(slug_field='slug',
-                                         many=True,
-                                         queryset=Genre.objects.all())
-    category = serializers.SlugRelatedField(slug_field='slug',
-                                            required=True,
-                                            queryset=Category.objects.all())
+    genre = SlugRelatedField(slug_field='slug',
+                             many=True,
+                             required=True,
+                             queryset=Genre.objects.all())
+    category = SlugRelatedField(slug_field='slug',
+                                required=True,
+                                queryset=Category.objects.all())
     rating = serializers.IntegerField(read_only=True, required=False)
-
+    id = serializers.CharField()
     class Meta:
         model = Title
-        fields = '__all__'
+        fields = ('id', 'name', 'year', 'rating',
+                  'description', 'genre', 'category')
 
         validators = [
             UniqueTogetherValidator(
