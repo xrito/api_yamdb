@@ -5,7 +5,7 @@ import csv
 
 from django.core.management.base import BaseCommand
 
-from reviews.models import Category, Genre, Comment, Review, Title
+from reviews.models import Category, Genre, Comment, Review, Title, GenreTitle
 from users.models import User
 
 from glob import glob
@@ -37,8 +37,14 @@ class Command(BaseCommand):
                             slug=row['slug']
                         )
                     if os.path.basename(csv_file) == os.path.basename(
+                            r'./static/data/genre_title.csv'):
+                        gentetitle, created = GenreTitle.objects.update_or_create(
+                            id=int(row['id']), title_id=row['title_id'],
+                            genre_id=row['genre_id']
+                        )                        
+                    if os.path.basename(csv_file) == os.path.basename(
                             r'./static/data/titles.csv'):
-                        titles, created = Title.objects.update_or_create(
+                        title, created = Title.objects.update_or_create(
                             id=int(row['id']), name=row['name'],
                             year=row['year'], category_id=row['category']
                         )
@@ -55,7 +61,7 @@ class Command(BaseCommand):
                     if os.path.basename(csv_file) == os.path.basename(
                             r'./static/data/review.csv'):
                         review, created = Review.objects.update_or_create(
-                            id=int(row['id']), titles_id=row['title_id'],
+                            id=int(row['id']), title_id=row['title_id'],
                             text=row['text'], author_id=row['author'],
                             score=row['score'], pub_date=row['pub_date']
                         )
@@ -65,7 +71,7 @@ class Command(BaseCommand):
                 for row in reader:
                     if os.path.basename(csv_file) == os.path.basename(
                             r'./static/data/comments.csv'):
-                        comments, created = Comment.objects.update_or_create(
+                        comment, created = Comment.objects.update_or_create(
                             id=int(row['id']), review_id=row['review_id'],
                             text=row['text'], author_id=row['author'],
                             pub_date=row['pub_date']

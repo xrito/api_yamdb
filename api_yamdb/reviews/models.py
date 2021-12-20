@@ -76,7 +76,7 @@ class Review(models.Model):
         (2, '2'),
         (1, '1'),
     )
-    titles = models.ForeignKey(
+    title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
         related_name='reviews'
@@ -100,7 +100,7 @@ class Review(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['author', 'titles'],
+                fields=['author', 'title'],
                 name='unique_title_author'
             )
         ]

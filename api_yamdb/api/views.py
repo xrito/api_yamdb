@@ -39,7 +39,7 @@ class ListCreateDeleteViewSet(mixins.ListModelMixin,
 class CategoryViewSet(ListCreateDeleteViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly, AdminOrReadOnlyPermission)
+    permission_classes = (AdminOrReadOnlyPermission,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_fields = 'slug'
@@ -49,7 +49,7 @@ class CategoryViewSet(ListCreateDeleteViewSet):
 class GenreViewSet(ListCreateDeleteViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly, AdminOrReadOnlyPermission)
+    permission_classes = (AdminOrReadOnlyPermission,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_fields = 'slug'
@@ -69,7 +69,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = (AdminOrModeratorOrAuthorPermission,)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, AdminOrModeratorOrAuthorPermission)
     pagination_class = PageNumberPagination
 
     def get_queryset(self):
@@ -80,13 +80,13 @@ class ReviewViewSet(viewsets.ModelViewSet):
         title_id = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
         serializer.save(author=self.request.user, title=title_id)
 
-    def perform_update(self, serializer):
-        pass
+    # def perform_update(self, serializer):
+    #     pass
 
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = (AdminOrModeratorOrAuthorPermission,)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, AdminOrModeratorOrAuthorPermission,)
     pagination_class = PageNumberPagination
 
     def get_queryset(self):
