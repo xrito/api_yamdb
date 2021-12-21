@@ -68,11 +68,12 @@ class TitleSerializer(serializers.ModelSerializer):
                                 required=True,
                                 queryset=Category.objects.all())
     rating = serializers.IntegerField(read_only=True, required=False)
-    id = serializers.CharField()
+    # id = serializers.CharField()
     class Meta:
         model = Title
         fields = ('id', 'name', 'year', 'rating',
                   'description', 'genre', 'category')
+
 
         validators = [
             UniqueTogetherValidator(

@@ -37,27 +37,27 @@ class ListCreateDeleteViewSet(mixins.ListModelMixin,
 
 
 class CategoryViewSet(ListCreateDeleteViewSet):
-    queryset = Category.objects.all()
+    queryset = Category.objects.all().order_by('id')
     serializer_class = CategorySerializer
     permission_classes = (AdminOrReadOnlyPermission,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_fields = 'slug'
-    pagination_class = api_settings.DEFAULT_PAGINATION_CLASS
+    pagination_class = PageNumberPagination
 
 
 class GenreViewSet(ListCreateDeleteViewSet):
-    queryset = Genre.objects.all()
+    queryset = Genre.objects.all().order_by('id')
     serializer_class = GenreSerializer
     permission_classes = (AdminOrReadOnlyPermission,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_fields = 'slug'
-    pagination_class = api_settings.DEFAULT_PAGINATION_CLASS
+    pagination_class = PageNumberPagination
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.annotate(rating=Avg('reviews__score'))
+    queryset = Title.objects.annotate(rating=Avg('reviews__score')).order_by('id')
     serializer_class = TitleSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly, AdminOrReadOnlyPermission)
     filter_backends = (DjangoFilterBackend,)
@@ -100,7 +100,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
-    queryset = User.objects.all()
+    queryset = User.objects.all().order_by('id')
     permission_classes = [AdminOnlyPermission]
     lookup_field = 'username'
 
