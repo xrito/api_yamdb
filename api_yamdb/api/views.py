@@ -2,6 +2,8 @@ from django.shortcuts import get_object_or_404
 from django.core.mail import send_mail
 from django.db.models import Avg
 from django.contrib.auth import get_user_model
+from django_filters import rest_framework
+from django_filters.filters import CharFilter
 from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import mixins, viewsets, filters, status, permissions
@@ -43,6 +45,17 @@ class CategoryViewSet(ListCreateDeleteViewSet):
     pagination_class = PageNumberPagination
 
 
+class GenreFilter(rest_framework.FilterSet):
+    year = CharFilter(field_name='year', lookup_expr='contains')
+    category = CharFilter(field_name='category__slug', lookup_expr='contains')
+    genre = CharFilter(field_name='genre__slug', lookup_expr='contains')
+    name = CharFilter(field_name='name', lookup_expr='contains')
+
+    class Meta:
+        model = Title
+        fields = '__all__'
+
+
 class GenreViewSet(ListCreateDeleteViewSet):
     queryset = Genre.objects.all().order_by('id')
     serializer_class = GenreSerializer
@@ -58,13 +71,10 @@ class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all().annotate(
         rating=Avg('reviews__score')).order_by('id')
     pagination_class = PageNumberPagination
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly, AdminOrReadOnlyPermission)
+    permission_classes = (
+        permissions.IsAuthenticatedOrReadOnly, AdminOrReadOnlyPermission)
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ('category__slug',
-                        'genre__slug',
-                        'name',
-                        'year')
-    # http_method_names = ('post', 'path', 'get', 'delete')
+    filterset_class = GenreFilter
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
