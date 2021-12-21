@@ -37,12 +37,6 @@ class Command(BaseCommand):
                             slug=row['slug']
                         )
                     if os.path.basename(csv_file) == os.path.basename(
-                            r'./static/data/genre_title.csv'):
-                        gentetitle, created = GenreTitle.objects.update_or_create(
-                            id=int(row['id']), title_id=row['title_id'],
-                            genre_id=row['genre_id']
-                        )                        
-                    if os.path.basename(csv_file) == os.path.basename(
                             r'./static/data/titles.csv'):
                         title, created = Title.objects.update_or_create(
                             id=int(row['id']), name=row['name'],
@@ -65,6 +59,12 @@ class Command(BaseCommand):
                             text=row['text'], author_id=row['author'],
                             score=row['score'], pub_date=row['pub_date']
                         )
+                    if os.path.basename(csv_file) == os.path.basename(
+                            r'./static/data/genre_title.csv'):
+                        gentetitle, created = GenreTitle.objects.update_or_create(
+                            id=int(row['id']), title_id=row['title_id'],
+                            genre_id=row['genre_id']
+                        )                        
         for csv_file in glob('./static/data/*.csv'):
             with open(csv_file, newline='', encoding='utf-8') as f:
                 reader = csv.DictReader(f)
