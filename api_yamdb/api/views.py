@@ -146,7 +146,8 @@ def send_auth_code(request):
                 status=status.HTTP_400_BAD_REQUEST)
         if username_exists and not email_exists:
             return Response(
-                {'message': 'Вы не можете создать пользователя с этим username'},
+                {'message':
+                    'Вы не можете создать пользователя с этим username'},
                 status=status.HTTP_400_BAD_REQUEST)
         auth_code = generate_auth_code(AUTH_CODE_LENGTH)
         user = User.objects.get(username=username)
@@ -154,7 +155,8 @@ def send_auth_code(request):
             auth_code=auth_code
         )
         email_subject = 'Ваш код подтверждения'
-        email_message = f'Используйте код подтверждения {auth_code}, чтобы авторизоваться'
+        email_message = (f'Используйте код подтверждения {auth_code},'
+                         'чтобы авторизоваться')
         send_mail(subject=email_subject, message=email_message,
                   recipient_list=[user.email], from_email=AUTH_FROM_EMAIL)
         return Response(
