@@ -15,7 +15,7 @@ from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.settings import api_settings
 
-from reviews.models import Category, Comment, Genre, Review, Title
+from reviews.models import Category, Genre, Review, Title
 from users.utils import generate_auth_code
 from api_yamdb.settings import AUTH_CODE_LENGTH, AUTH_FROM_EMAIL
 
@@ -39,7 +39,7 @@ class ListCreateDeleteViewSet(mixins.ListModelMixin,
 class CategoryViewSet(ListCreateDeleteViewSet):
     queryset = Category.objects.all().order_by('id')
     serializer_class = CategorySerializer
-    permission_classes = (AdminOrReadOnlyPermission,)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, AdminOrReadOnlyPermission)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_fields = 'slug'
@@ -49,7 +49,7 @@ class CategoryViewSet(ListCreateDeleteViewSet):
 class GenreViewSet(ListCreateDeleteViewSet):
     queryset = Genre.objects.all().order_by('id')
     serializer_class = GenreSerializer
-    permission_classes = (AdminOrReadOnlyPermission,)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, AdminOrReadOnlyPermission)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_fields = 'slug'
@@ -59,7 +59,8 @@ class GenreViewSet(ListCreateDeleteViewSet):
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.annotate(rating=Avg('reviews__score')).order_by('id')
     serializer_class = TitleSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly, AdminOrReadOnlyPermission)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, AdminOrReadOnlyPermission,)
+    pagination_class = PageNumberPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('category__slug',
                         'genre__slug',
@@ -69,32 +70,42 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly, AdminOrModeratorOrAuthorPermission)
     pagination_class = PageNumberPagination
-
+ 
+    def get_permissions(self):
+        if self.action in ('update', 'partial_update', 'destroy'):
+            permission_classes = (AdminOrModeratorOrAuthorPermission,)
+        else:
+            permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+        return (permission() for permission in permission_classes)
+    
     def get_queryset(self):
-        title_id = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
-        return title_id.reviews.all()
+        title_id = get_object_or_404(Title, id=self.kwargs.get('title_id'))
+        return title_id.reviews.all().order_by('id')
 
     def perform_create(self, serializer):
-        title_id = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
+        title_id = get_object_or_404(Title, id=self.kwargs.get('title_id'))
         serializer.save(author=self.request.user, title=title_id)
 
-    # def perform_update(self, serializer):
-    #     pass
 
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly, AdminOrModeratorOrAuthorPermission,)
     pagination_class = PageNumberPagination
 
+    def get_permissions(self):
+        if self.action in ('update', 'partial_update', 'destroy'):
+            permission_classes = (AdminOrModeratorOrAuthorPermission,)
+        else:
+            permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+        return (permission() for permission in permission_classes)
+
     def get_queryset(self):
-        review_id = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
-        return review_id.comments.all()
+        review_id = get_object_or_404(Review, id=self.kwargs.get('review_id'))
+        return review_id.comments.all().order_by('id')
 
     def perform_create(self, serializer):
-        review_id = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
+        review_id = get_object_or_404(Review, id=self.kwargs.get('review_id'))
         serializer.save(author=self.request.user, review=review_id)
 
 

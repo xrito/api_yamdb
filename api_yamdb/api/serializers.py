@@ -58,7 +58,6 @@ class GenreSerializer(serializers.ModelSerializer):
         model = Genre
         fields = ('name', 'slug',)
 
-
 class TitleSerializer(serializers.ModelSerializer):
     genre = SlugRelatedField(slug_field='slug',
                              many=True,
@@ -68,7 +67,6 @@ class TitleSerializer(serializers.ModelSerializer):
                                 required=True,
                                 queryset=Category.objects.all())
     rating = serializers.IntegerField(read_only=True, required=False)
-    # id = serializers.CharField()
     class Meta:
         model = Title
         fields = ('id', 'name', 'year', 'rating',
@@ -76,10 +74,10 @@ class TitleSerializer(serializers.ModelSerializer):
 
 
         validators = [
-            UniqueTogetherValidator(
-                queryset=GenreTitle.objects.all(),
-                fields=('title', 'genre')
-            ),
+            # UniqueTogetherValidator(
+            #     queryset=GenreTitle.objects.all(),
+            #     fields=('title', 'genre')
+            # ),
             UniqueTogetherValidator(
                 queryset=Title.objects.all(),
                 fields=('name', 'category')
@@ -94,18 +92,18 @@ class TitleSerializer(serializers.ModelSerializer):
             )
         return value
 
-    def validate_genre(self, values):
-        for value in values:
-            if not Genre.objects.filter(slug=value):
-                raise serializers.ValidationError(
-                    'Такого жанра не существует!')
-            return value
+    # def validate_genre(self, values):
+    #     for value in values:
+    #         if not Genre.objects.filter(slug=value):
+    #             raise serializers.ValidationError(
+    #                 'Такого жанра не существует!')
+    #         return value
 
-    def validate_category(self, value):
-        if not Category.objects.filter(slug=value):
-            raise serializers.ValidationError(
-                'Такой категории не существует!')
-        return value
+    # def validate_category(self, value):
+    #     if not Category.objects.filter(slug=value):
+    #         raise serializers.ValidationError(
+    #             'Такой категории не существует!')
+    #     return value
 
 
 class ReviewSerializer(serializers.ModelSerializer):
