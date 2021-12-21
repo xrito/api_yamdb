@@ -4,9 +4,9 @@ from django.contrib.auth import get_user_model
 
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
-from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
+from rest_framework.validators import UniqueValidator
 
-from reviews.models import Category, Comment, Genre, GenreTitle, Review, Title
+from reviews.models import Category, Comment, Genre, Review, Title
 
 User = get_user_model()
 
@@ -58,31 +58,28 @@ class GenreSerializer(serializers.ModelSerializer):
         model = Genre
         fields = ('name', 'slug',)
 
-class TitleSerializer(serializers.ModelSerializer):
+
+class TitleListSerializer(serializers.ModelSerializer):
+
+    rating = serializers.IntegerField()
+
+    class Meta:
+        model = Title
+        fields = ['genre', 'category', 'name', 'description', 'year', 'rating']
+
+
+class TitleCreateSerializer(serializers.ModelSerializer):
     genre = SlugRelatedField(slug_field='slug',
-                             many=True,
                              required=True,
+                             many=True,
                              queryset=Genre.objects.all())
     category = SlugRelatedField(slug_field='slug',
                                 required=True,
                                 queryset=Category.objects.all())
-    rating = serializers.IntegerField(read_only=True, required=False)
+
     class Meta:
         model = Title
-        fields = ('id', 'name', 'year', 'rating',
-                  'description', 'genre', 'category')
-
-
-        validators = [
-            # UniqueTogetherValidator(
-            #     queryset=GenreTitle.objects.all(),
-            #     fields=('title', 'genre')
-            # ),
-            UniqueTogetherValidator(
-                queryset=Title.objects.all(),
-                fields=('name', 'category')
-            )
-        ]
+        fields = ['genre', 'category', 'name', 'description', 'year']
 
     def validate_year(self, value):
         year = dt.date.today().year
@@ -92,18 +89,18 @@ class TitleSerializer(serializers.ModelSerializer):
             )
         return value
 
-    # def validate_genre(self, values):
-    #     for value in values:
-    #         if not Genre.objects.filter(slug=value):
-    #             raise serializers.ValidationError(
-    #                 'Такого жанра не существует!')
-    #         return value
+    def validate_genre(self, values):
+        for value in values:
+            if not Genre.objects.filter(slug=value):
+                raise serializers.ValidationError(
+                    'Такого жанра не существует!')
+            return value
 
-    # def validate_category(self, value):
-    #     if not Category.objects.filter(slug=value):
-    #         raise serializers.ValidationError(
-    #             'Такой категории не существует!')
-    #     return value
+    def validate_category(self, value):
+        if not Category.objects.filter(slug=value):
+            raise serializers.ValidationError(
+                'Такой категории не существует!')
+        return value
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -115,6 +112,15 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ['id', 'text', 'author', 'score', 'pub_date']
         model = Review
+
+    def validate(self, data):
+        if self.context['request'].method == 'PATCH':
+            return data
+        author = self.context['request'].user
+        title = (self.context['request'].parser_context['kwargs']['title_id'])
+        if Review.objects.filter(author=author, title_id=title).exists():
+            raise serializers.ValidationError()
+        return data
 
 
 class CommentSerializer(serializers.ModelSerializer):

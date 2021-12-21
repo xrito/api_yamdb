@@ -32,14 +32,6 @@ class Title(models.Model):
         on_delete=models.SET_NULL,
         null=True)
 
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=['name', 'category'],
-                name='unique_name_category'
-            )
-        ]
-
     def __str__(self):
         return self.name
 
@@ -53,14 +45,6 @@ class GenreTitle(models.Model):
         Genre,
         on_delete=models.SET_NULL,
         null=True)
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=['title', 'genre'],
-                name='unique_title_genre'
-            )
-        ]
 
 
 class Review(models.Model):
@@ -98,12 +82,7 @@ class Review(models.Model):
     )
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=['author', 'title'],
-                name='unique_title_author'
-            )
-        ]
+        unique_together = ['author', 'title']
 
     def __str__(self):
         return self.author.username
