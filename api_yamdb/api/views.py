@@ -63,22 +63,12 @@ class TitleViewSet(viewsets.ModelViewSet):
                         'genre__slug',
                         'name',
                         'year')
+    # http_method_names = ('post', 'path', 'get', 'delete')
 
     def get_serializer_class(self):
-        if self.action in ("list", "retrieve"):
+        if self.action in ('list', 'retrieve'):
             return TitleListSerializer
         return TitleCreateSerializer
-
-    # queryset = Title.objects.annotate(
-    #     rating=Avg('reviews__score')).order_by('id')
-    # permission_classes = (
-    #     permissions.IsAuthenticatedOrReadOnly, AdminOrReadOnlyPermission,)
-    # pagination_class = PageNumberPagination
-    # filter_backends = (DjangoFilterBackend,)
-    # filterset_fields = ('category__slug',
-    #                     'genre__slug',
-    #                     'name',
-    #                     'year')
 
 
 class ReviewViewSet(viewsets.ModelViewSet):

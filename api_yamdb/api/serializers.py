@@ -63,7 +63,13 @@ class TitleListSerializer(serializers.ModelSerializer):
     genre = GenreSerializer(many=True)
     category = CategorySerializer(required=True)
     rating = serializers.IntegerField()
+    # genre = SlugRelatedField(slug_field='slug',
+    #                          many=True,
+    #                          read_only=True)
+    # category = SlugRelatedField(slug_field='slug',
+    #                             read_only=True)
 
+    # rating = serializers.IntegerField(read_only=True)
     class Meta:
         model = Title
         fields = ['id', 'genre', 'category',
@@ -72,37 +78,22 @@ class TitleListSerializer(serializers.ModelSerializer):
 
 class TitleCreateSerializer(serializers.ModelSerializer):
     genre = SlugRelatedField(slug_field='slug',
-                             required=True,
                              many=True,
                              queryset=Genre.objects.all())
     category = SlugRelatedField(slug_field='slug',
-                                required=True,
                                 queryset=Category.objects.all())
 
     class Meta:
         model = Title
         fields = ['id', 'genre', 'category', 'name', 'description', 'year']
 
-    # def validate_year(self, value):
-    #     year = dt.date.today().year
-    #     if value > year:
-    #         raise serializers.ValidationError(
-    #             'Год выпуска не может быть больше текущего!'
-    #         )
-    #     return value
-
-    # def validate_genre(self, values):
-    #     for value in values:
-    #         if not Genre.objects.filter(slug=value):
-    #             raise serializers.ValidationError(
-    #                 'Такого жанра не существует!')
-    #         return value
-
-    # def validate_category(self, value):
-    #     if not Category.objects.filter(slug=value):
-    #         raise serializers.ValidationError(
-    #             'Такой категории не существует!')
-    #     return value
+    def validate_year(self, value):
+        year = dt.date.today().year
+        if value > year:
+            raise serializers.ValidationError(
+                'Год выпуска не может быть больше текущего!'
+            )
+        return value
 
 
 class ReviewSerializer(serializers.ModelSerializer):

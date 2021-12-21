@@ -15,12 +15,8 @@ class Command(BaseCommand):
     help = 'Импорт данных из csv в db.'
 
     def handle(self, *args, **options):
-        # csv_file = './static/data/category.csv'
-
         for csv_file in glob('./static/data/*.csv'):
-            # if not os.path.isfile(csv_file):
-            #     print('ФАЙЛ НЕ НАЙДЕН')
-            #     return
+
             with open(csv_file, newline='', encoding='utf-8') as f:
                 reader = csv.DictReader(f)
                 for row in reader:
@@ -64,7 +60,7 @@ class Command(BaseCommand):
                         gentetitle, created = GenreTitle.objects.update_or_create(
                             id=int(row['id']), title_id=row['title_id'],
                             genre_id=row['genre_id']
-                        )                        
+                        )
         for csv_file in glob('./static/data/*.csv'):
             with open(csv_file, newline='', encoding='utf-8') as f:
                 reader = csv.DictReader(f)
