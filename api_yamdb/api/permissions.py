@@ -60,8 +60,9 @@ class AdminOrReadOnlyPermission(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         """Метод проверяет является ли пользователь
         администратором или суперпользователем."""
-        if not request.user.is_authenticated:
-            return False
-        if request.user.role == User.ADMIN or request.user.is_superuser:
+        if request.method in permissions.SAFE_METHODS:
             return True
+        if request.user.is_authenticated:
+            if request.user.role == User.ADMIN or request.user.is_superuser:
+                return True
         return False
