@@ -39,7 +39,7 @@ class CategoryViewSet(ListCreateDeleteViewSet):
         permissions.IsAuthenticatedOrReadOnly, AdminOrReadOnlyPermission)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
-    lookup_fields = 'slug'
+    lookup_field = 'slug'
     pagination_class = PageNumberPagination
 
 
@@ -50,7 +50,7 @@ class GenreViewSet(ListCreateDeleteViewSet):
         permissions.IsAuthenticatedOrReadOnly, AdminOrReadOnlyPermission)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
-    lookup_fields = 'slug'
+    lookup_field = 'slug'
     pagination_class = PageNumberPagination
 
 
