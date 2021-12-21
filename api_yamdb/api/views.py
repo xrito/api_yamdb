@@ -59,6 +59,7 @@ class TitleViewSet(viewsets.ModelViewSet):
         rating=Avg('reviews__score')).order_by('id')
     pagination_class = PageNumberPagination
     permission_classes = (permissions.IsAuthenticatedOrReadOnly, AdminOrReadOnlyPermission)
+    filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('category__slug',
                         'genre__slug',
                         'name',
