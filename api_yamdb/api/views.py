@@ -17,10 +17,10 @@ from api_yamdb.settings import AUTH_CODE_LENGTH, AUTH_FROM_EMAIL
 from .permissions import (AdminOnlyPermission, AdminOrReadOnlyPermission,
                           AdminOrModeratorOrAuthorPermission)
 from .serializers import (CategorySerializer, CommentSerializer,
-                          GenreSerializer, ReviewSerializer, TitleListSerializer,
-                          TitleCreateSerializer, UserSerializer,
-                          AuthCodeSerializer, SendAuthCodeSerializer,
-                          ProfileSerializer)
+                          GenreSerializer, ReviewSerializer,
+                          TitleListSerializer, TitleCreateSerializer,
+                          UserSerializer, AuthCodeSerializer,
+                          SendAuthCodeSerializer, ProfileSerializer)
 
 User = get_user_model()
 
@@ -55,16 +55,30 @@ class GenreViewSet(ListCreateDeleteViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.annotate(
+    queryset = Title.objects.all().annotate(
         rating=Avg('reviews__score')).order_by('id')
-    permission_classes = (
-        permissions.IsAuthenticatedOrReadOnly, AdminOrReadOnlyPermission,)
     pagination_class = PageNumberPagination
-    filter_backends = (DjangoFilterBackend,)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, AdminOrReadOnlyPermission)
     filterset_fields = ('category__slug',
                         'genre__slug',
                         'name',
                         'year')
+
+    def get_serializer_class(self):
+        if self.action in ("list", "retrieve"):
+            return TitleListSerializer
+        return TitleCreateSerializer
+
+    # queryset = Title.objects.annotate(
+    #     rating=Avg('reviews__score')).order_by('id')
+    # permission_classes = (
+    #     permissions.IsAuthenticatedOrReadOnly, AdminOrReadOnlyPermission,)
+    # pagination_class = PageNumberPagination
+    # filter_backends = (DjangoFilterBackend,)
+    # filterset_fields = ('category__slug',
+    #                     'genre__slug',
+    #                     'name',
+    #                     'year')
 
 
 class ReviewViewSet(viewsets.ModelViewSet):

@@ -60,12 +60,14 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class TitleListSerializer(serializers.ModelSerializer):
-
+    genre = GenreSerializer(many=True)
+    category = CategorySerializer(required=True)
     rating = serializers.IntegerField()
 
     class Meta:
         model = Title
-        fields = ['genre', 'category', 'name', 'description', 'year', 'rating']
+        fields = ['id', 'genre', 'category',
+                  'name', 'description', 'year', 'rating']
 
 
 class TitleCreateSerializer(serializers.ModelSerializer):
@@ -79,28 +81,28 @@ class TitleCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        fields = ['genre', 'category', 'name', 'description', 'year']
+        fields = ['id', 'genre', 'category', 'name', 'description', 'year']
 
-    def validate_year(self, value):
-        year = dt.date.today().year
-        if value > year:
-            raise serializers.ValidationError(
-                'Год выпуска не может быть больше текущего!'
-            )
-        return value
+    # def validate_year(self, value):
+    #     year = dt.date.today().year
+    #     if value > year:
+    #         raise serializers.ValidationError(
+    #             'Год выпуска не может быть больше текущего!'
+    #         )
+    #     return value
 
-    def validate_genre(self, values):
-        for value in values:
-            if not Genre.objects.filter(slug=value):
-                raise serializers.ValidationError(
-                    'Такого жанра не существует!')
-            return value
+    # def validate_genre(self, values):
+    #     for value in values:
+    #         if not Genre.objects.filter(slug=value):
+    #             raise serializers.ValidationError(
+    #                 'Такого жанра не существует!')
+    #         return value
 
-    def validate_category(self, value):
-        if not Category.objects.filter(slug=value):
-            raise serializers.ValidationError(
-                'Такой категории не существует!')
-        return value
+    # def validate_category(self, value):
+    #     if not Category.objects.filter(slug=value):
+    #         raise serializers.ValidationError(
+    #             'Такой категории не существует!')
+    #     return value
 
 
 class ReviewSerializer(serializers.ModelSerializer):
