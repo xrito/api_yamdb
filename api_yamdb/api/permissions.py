@@ -13,9 +13,7 @@ class AdminOrModeratorOrAuthorPermission(permissions.BasePermission):
         На чтение - доступно любому пользователю.
         На создание - доступно только авторизованному.
         """
-        if request.method in permissions.SAFE_METHODS:
-            return True
-        if request.user.is_authenticated:
+        if request.method in permissions.SAFE_METHODS or request.user.is_authenticated:
             return True
         return False
 
@@ -23,6 +21,8 @@ class AdminOrModeratorOrAuthorPermission(permissions.BasePermission):
         """Метод проверяет сначала, имеет ли пользователь
         группу модератора или администратора,
         а затем проверяет является ли пользователь автором поста."""
+        if request.method in permissions.SAFE_METHODS:
+            return True
         if not request.user.is_authenticated:
             return False
         if request.user.role in (User.MODERATOR, User.ADMIN):
