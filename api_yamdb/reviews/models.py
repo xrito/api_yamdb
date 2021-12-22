@@ -1,6 +1,8 @@
 from django.db import models
 from django.conf import settings
 
+from .validator import validate_year
+
 
 class Category(models.Model):
     name = models.CharField(unique=True, max_length=256)
@@ -28,7 +30,7 @@ class Genre(models.Model):
 
 class Title(models.Model):
     name = models.CharField(max_length=256)
-    year = models.IntegerField(blank=False, null=False)
+    year = models.IntegerField(blank=False, null=False, validators=[validate_year])
     description = models.TextField(blank=True, null=True,)
     genre = models.ManyToManyField(
         Genre,
