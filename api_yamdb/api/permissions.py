@@ -21,6 +21,8 @@ class AdminOrModeratorOrAuthorPermission(permissions.BasePermission):
         """Метод проверяет сначала, имеет ли пользователь
         группу модератора или администратора,
         а затем проверяет является ли пользователь автором поста."""
+        if request.method in permissions.SAFE_METHODS:
+            return True
         if not request.user.is_authenticated:
             return False
         if request.user.role in (User.MODERATOR, User.ADMIN):

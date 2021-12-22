@@ -3,6 +3,8 @@ from django.core.mail import send_mail
 from django.db.models import Avg
 from django.contrib.auth import get_user_model
 from django_filters.rest_framework import DjangoFilterBackend
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+
 
 from rest_framework import mixins, viewsets, filters, status, permissions
 from rest_framework.response import Response
@@ -11,7 +13,6 @@ from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework.decorators import api_view, permission_classes
 
 from reviews.models import Category, Genre, Review, Title
-from users.utils import generate_auth_code
 from api_yamdb.settings import AUTH_CODE_LENGTH, AUTH_FROM_EMAIL
 
 from .permissions import (AdminOnlyPermission, AdminOrReadOnlyPermission,
@@ -85,13 +86,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     pagination_class = PageNumberPagination
-
-    def get_permissions(self):
-        if self.action in ('update', 'partial_update', 'destroy'):
-            permission_classes = (AdminOrModeratorOrAuthorPermission,)
-        else:
-            permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
-        return (permission() for permission in permission_classes)
+    permission_classes = (AdminOrModeratorOrAuthorPermission, )
 
     def get_queryset(self):
         title_id = get_object_or_404(Title, id=self.kwargs.get('title_id'))
@@ -105,13 +100,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     pagination_class = PageNumberPagination
-
-    def get_permissions(self):
-        if self.action in ('update', 'partial_update', 'destroy'):
-            permission_classes = (AdminOrModeratorOrAuthorPermission,)
-        else:
-            permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
-        return (permission() for permission in permission_classes)
+    permission_classes = (AdminOrModeratorOrAuthorPermission,)
 
     def get_queryset(self):
         review_id = get_object_or_404(Review, id=self.kwargs.get('review_id'))
@@ -148,8 +137,9 @@ def send_auth_code(request):
             return Response(
                 {'message': 'Вы не можете создать пользователя с этим username'},
                 status=status.HTTP_400_BAD_REQUEST)
-        auth_code = generate_auth_code(AUTH_CODE_LENGTH)
         user = User.objects.get(username=username)
+        generator = PasswordResetTokenGenerator()
+        auth_code = generator.make_token(user)
         User.objects.filter(username=username).update(
             auth_code=auth_code
         )
@@ -170,26 +160,27 @@ def send_auth_code(request):
 @permission_classes([permissions.AllowAny])
 def get_token(request):
     serializer = AuthCodeSerializer(data=request.data)
-    if serializer.is_valid():
-        username = request.data['username']
-        user = get_object_or_404(User, username=username)
-        if user.auth_code == request.data['confirmation_code']:
-            access_token = AccessToken.for_user(user)
-            return Response(
-                {
-                    'error': None,
-                    'token': f'{access_token}'
-                },
-                status=status.HTTP_200_OK
-            )
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    username = request.data['username']
+    user = get_object_or_404(User, username=username)
+    generator = PasswordResetTokenGenerator()
+    if generator.check_token(user, request.data['confirmation_code']):
+        access_token = AccessToken.for_user(user)
         return Response(
             {
-                'error': 'Неверный код подтверждения',
-                'token': None
+                'error': None,
+                'token': f'{access_token}'
             },
-            status=status.HTTP_400_BAD_REQUEST
+            status=status.HTTP_200_OK
         )
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response(
+        {
+            'error': 'Неверный код подтверждения',
+            'token': None
+        },
+        status=status.HTTP_400_BAD_REQUEST
+    )
 
 
 @api_view(['GET', 'PATCH'])
