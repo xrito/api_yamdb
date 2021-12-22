@@ -151,7 +151,7 @@ def send_auth_code(request):
 @permission_classes([permissions.AllowAny])
 def get_token(request):
     serializer = AuthCodeSerializer(data=request.data)
-    if not serializer.is_valid():
+    if not serializer.is_valid(raise_exception=True):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     username = request.data['username']
     user = get_object_or_404(User, username=username)
