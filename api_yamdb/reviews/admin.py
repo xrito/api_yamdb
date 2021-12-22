@@ -1,12 +1,10 @@
+from django.apps import apps
 from django.contrib import admin
+from django.contrib.admin.sites import AlreadyRegistered
 
-
-from .models import Review, Title, GenreTitle, Genre, Category, Comment
-
-
-admin.site.register(Review)
-admin.site.register(Title)
-admin.site.register(Category)
-admin.site.register(Genre)
-admin.site.register(Comment)
-admin.site.register(GenreTitle)
+models = apps.get_app_config('reviews').get_models()
+for model in models:
+    try:
+        admin.site.register(model)
+    except AlreadyRegistered:
+        pass
