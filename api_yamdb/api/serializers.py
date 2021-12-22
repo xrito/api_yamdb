@@ -23,8 +23,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name',
-                  'last_name', 'bio', 'role']
+        fields = ('username', 'email', 'first_name',
+                  'last_name', 'bio', 'role')
         lookup_field = 'username'
 
 
@@ -42,9 +42,9 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['email', 'username', 'first_name',
-                  'last_name', 'bio', 'role']
-        read_only_fields = ['role']
+        fields = ('email', 'username', 'first_name',
+                  'last_name', 'bio', 'role')
+        read_only_fields = ('role',)
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -63,17 +63,11 @@ class TitleListSerializer(serializers.ModelSerializer):
     genre = GenreSerializer(many=True)
     category = CategorySerializer(required=True)
     rating = serializers.IntegerField()
-    # genre = SlugRelatedField(slug_field='slug',
-    #                          many=True,
-    #                          read_only=True)
-    # category = SlugRelatedField(slug_field='slug',
-    #                             read_only=True)
 
-    # rating = serializers.IntegerField(read_only=True)
     class Meta:
         model = Title
-        fields = ['id', 'genre', 'category',
-                  'name', 'description', 'year', 'rating']
+        fields = ('id', 'genre', 'category',
+                  'name', 'description', 'year', 'rating')
 
 
 class TitleCreateSerializer(serializers.ModelSerializer):
@@ -85,7 +79,7 @@ class TitleCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        fields = ['id', 'genre', 'category', 'name', 'description', 'year']
+        fields = ('id', 'genre', 'category', 'name', 'description', 'year')
 
     def validate_year(self, value):
         year = dt.date.today().year
@@ -103,16 +97,18 @@ class ReviewSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        fields = ['id', 'text', 'author', 'score', 'pub_date']
+        fields = ('id', 'text', 'author', 'score', 'pub_date')
         model = Review
 
     def validate(self, data):
-        if self.context['request'].method == 'PATCH':
+        request = self.context['request']
+        if request.method == 'PATCH':
             return data
-        author = self.context['request'].user
-        title = (self.context['request'].parser_context['kwargs']['title_id'])
+        author = request.user
+        title = (request.parser_context['kwargs']['title_id'])
         if Review.objects.filter(author=author, title_id=title).exists():
-            raise serializers.ValidationError()
+            raise serializers.ValidationError(
+                'Вы уже оставляли отзыв на это произведение')
         return data
 
 
@@ -123,7 +119,7 @@ class CommentSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        fields = ['id', 'text', 'author', 'pub_date']
+        fields = ('id', 'text', 'author', 'pub_date')
         model = Comment
 
 
