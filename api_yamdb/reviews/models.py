@@ -6,6 +6,10 @@ class Category(models.Model):
     name = models.CharField(unique=True, max_length=256)
     slug = models.SlugField(unique=True, max_length=50)
 
+    class Meta:
+        verbose_name = 'Category'
+        verbose_name_plural = 'Categories'
+
     def __str__(self):
         return self.name
 
@@ -14,13 +18,17 @@ class Genre(models.Model):
     name = models.CharField(unique=True, max_length=256)
     slug = models.SlugField(unique=True, max_length=50)
 
+    class Meta:
+        verbose_name = 'Genre'
+        verbose_name_plural = 'Generes'
+
     def __str__(self):
         return self.name
 
 
 class Title(models.Model):
     name = models.CharField(max_length=256)
-    year = models.IntegerField()
+    year = models.IntegerField(blank=False, null=False)
     description = models.TextField(blank=True, null=True,)
     genre = models.ManyToManyField(
         Genre,
@@ -31,6 +39,10 @@ class Title(models.Model):
         related_name='category',
         on_delete=models.SET_NULL,
         null=True)
+
+    class Meta:
+        verbose_name = 'Title'
+        verbose_name_plural = 'Titles'
 
     def __str__(self):
         return self.name
@@ -83,6 +95,8 @@ class Review(models.Model):
 
     class Meta:
         unique_together = ['author', 'title']
+        verbose_name = 'Review'
+        verbose_name_plural = 'Reviews'
 
     def __str__(self):
         return self.author.username
@@ -104,6 +118,10 @@ class Comment(models.Model):
         auto_now_add=True,
         db_index=True
     )
+
+    class Meta:
+        verbose_name = 'Comment'
+        verbose_name_plural = 'Comments'
 
     def __str__(self):
         return self.text
