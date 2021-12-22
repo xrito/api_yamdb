@@ -39,7 +39,7 @@ class CategoryViewSet(ListCreateDeleteViewSet):
         permissions.IsAuthenticatedOrReadOnly, AdminOrReadOnlyPermission)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
-    lookup_fields = 'slug'
+    lookup_field = 'slug'
     pagination_class = PageNumberPagination
 
 
@@ -59,6 +59,7 @@ class TitleViewSet(viewsets.ModelViewSet):
         rating=Avg('reviews__score')).order_by('id')
     pagination_class = PageNumberPagination
     permission_classes = (permissions.IsAuthenticatedOrReadOnly, AdminOrReadOnlyPermission)
+    filter_backends = [DjangoFilterBackend]
     filterset_fields = ('category__slug',
                         'genre__slug',
                         'name',

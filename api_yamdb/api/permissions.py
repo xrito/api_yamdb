@@ -13,9 +13,7 @@ class AdminOrModeratorOrAuthorPermission(permissions.BasePermission):
         На чтение - доступно любому пользователю.
         На создание - доступно только авторизованному.
         """
-        if request.method in permissions.SAFE_METHODS:
-            return True
-        if request.user.is_authenticated:
+        if request.method in permissions.SAFE_METHODS or request.user.is_authenticated:
             return True
         return False
 

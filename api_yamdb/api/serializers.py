@@ -23,8 +23,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name',
-                  'last_name', 'bio', 'role']
+        fields = ('username', 'email', 'first_name',
+                  'last_name', 'bio', 'role')
         lookup_field = 'username'
 
 
@@ -42,8 +42,8 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['email', 'username', 'first_name',
-                  'last_name', 'bio', 'role']
+        fields = ('email', 'username', 'first_name',
+                  'last_name', 'bio', 'role')
         read_only_fields = ['role']
 
 
@@ -66,8 +66,8 @@ class TitleListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        fields = ['id', 'genre', 'category',
-                  'name', 'description', 'year', 'rating']
+        fields = ('id', 'genre', 'category',
+                  'name', 'description', 'year', 'rating')
 
 
 class TitleCreateSerializer(serializers.ModelSerializer):
@@ -81,7 +81,7 @@ class TitleCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        fields = ['id', 'genre', 'category', 'name', 'description', 'year']
+        fields = ('id', 'genre', 'category', 'name', 'description', 'year')
 
     # def validate_year(self, value):
     #     year = dt.date.today().year
@@ -112,7 +112,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        fields = ['id', 'text', 'author', 'score', 'pub_date']
+        fields = ('id', 'text', 'author', 'score', 'pub_date')
         model = Review
 
     def validate(self, data):
@@ -132,7 +132,7 @@ class CommentSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        fields = ['id', 'text', 'author', 'pub_date']
+        fields = ('id', 'text', 'author', 'pub_date')
         model = Comment
 
 
