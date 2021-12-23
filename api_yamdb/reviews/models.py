@@ -30,7 +30,8 @@ class Genre(models.Model):
 
 class Title(models.Model):
     name = models.CharField(max_length=256)
-    year = models.IntegerField(blank=False, null=False, validators=[validate_year])
+    year = models.IntegerField(
+        blank=False, null=False, validators=[validate_year])
     description = models.TextField(blank=True, null=True,)
     genre = models.ManyToManyField(
         Genre,
@@ -96,7 +97,8 @@ class Review(models.Model):
     )
 
     class Meta:
-        UniqueConstraint(fields=['title', 'author'], name='unique_review')
+        models.UniqueConstraint(
+            fields=['title', 'author'], name='unique_review')
         verbose_name = 'Review'
         verbose_name_plural = 'Reviews'
 

@@ -8,12 +8,14 @@ class AdminOrModeratorOrAuthorPermission(permissions.BasePermission):
     """Класс пермишена для доступа к изменению контента,
     генерируемого пользователями. Такой контент могут изменять модераторы,
     администраторы или авторы."""
+
     def has_permission(self, request, view):
         """Метод проверяет тип запроса.
         На чтение - доступно любому пользователю.
         На создание - доступно только авторизованному.
         """
-        if request.method in permissions.SAFE_METHODS or request.user.is_authenticated:
+        if (request.method in permissions.SAFE_METHODS
+                or request.user.is_authenticated):
             return True
         return False
 
@@ -33,6 +35,7 @@ class AdminOrModeratorOrAuthorPermission(permissions.BasePermission):
 class AdminOnlyPermission(permissions.BasePermission):
     """Класс пермишена для доступа к изменению контента администратора.
     Такой контент могут изменять только администраторы и суперпользователь."""
+
     def has_permission(self, request, view):
         if not request.user.is_authenticated:
             return False
