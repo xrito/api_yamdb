@@ -36,7 +36,7 @@ class ListCreateDeleteViewSet(mixins.ListModelMixin,
 
 
 class CategoryViewSet(ListCreateDeleteViewSet):
-    queryset = Category.objects.all().order_by('id')
+    queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = (
         permissions.IsAuthenticatedOrReadOnly, AdminOrReadOnlyPermission)
@@ -47,7 +47,7 @@ class CategoryViewSet(ListCreateDeleteViewSet):
 
 
 class GenreViewSet(ListCreateDeleteViewSet):
-    queryset = Genre.objects.all().order_by('id')
+    queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = (
         permissions.IsAuthenticatedOrReadOnly, AdminOrReadOnlyPermission)
@@ -59,7 +59,7 @@ class GenreViewSet(ListCreateDeleteViewSet):
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all().annotate(
-        rating=Avg('reviews__score')).order_by('id')
+        rating=Avg('reviews__score'))
     pagination_class = PageNumberPagination
     permission_classes = (
         permissions.IsAuthenticatedOrReadOnly, AdminOrReadOnlyPermission)
@@ -79,7 +79,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         title_id = get_object_or_404(Title, id=self.kwargs.get('title_id'))
-        return title_id.reviews.all().order_by('id')
+        return title_id.reviews.all()
 
     def perform_create(self, serializer):
         title_id = get_object_or_404(Title, id=self.kwargs.get('title_id'))
@@ -93,7 +93,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         review_id = get_object_or_404(Review, id=self.kwargs.get('review_id'))
-        return review_id.comments.all().order_by('id')
+        return review_id.comments.all()
 
     def perform_create(self, serializer):
         review_id = get_object_or_404(Review, id=self.kwargs.get('review_id'))
@@ -102,7 +102,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
-    queryset = User.objects.all().order_by('id')
+    queryset = User.objects.all()
     permission_classes = [AdminOnlyPermission]
     lookup_field = 'username'
 
