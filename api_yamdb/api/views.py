@@ -111,39 +111,38 @@ class UserViewSet(viewsets.ModelViewSet):
 @permission_classes([permissions.AllowAny])
 def send_auth_code(request):
     serializer = SendAuthCodeSerializer(data=request.data)
-    if serializer.is_valid():
-        username = request.data['username']
-        email = request.data['email']
-        username_exists = User.objects.filter(username=username).exists()
-        email_exists = User.objects.filter(email=email).exists()
-        if not username_exists and not email_exists:
-            User.objects.create_user(email=email, username=username)
-        if not username_exists and email_exists:
-            return Response(
-                {'message': 'Вы не можете создать пользователя с этим email'},
-                status=status.HTTP_400_BAD_REQUEST)
-        if username_exists and not email_exists:
-            return Response(
-                {'message':
-                    'Вы не можете создать пользователя с этим username'},
-                status=status.HTTP_400_BAD_REQUEST)
-        user = User.objects.get(username=username)
-        generator = PasswordResetTokenGenerator()
-        auth_code = generator.make_token(user)
-        User.objects.filter(username=username).update(
-            auth_code=auth_code
-        )
-        email_subject = 'Ваш код подтверждения'
-        email_message = (f'Используйте код подтверждения {auth_code},'
-                         'чтобы авторизоваться')
-        send_mail(subject=email_subject, message=email_message,
-                  recipient_list=[user.email], from_email=AUTH_FROM_EMAIL)
+    serializer.is_valid(raise_exception=True)
+    username = request.data['username']
+    email = request.data['email']
+    username_exists = User.objects.filter(username=username).exists()
+    email_exists = User.objects.filter(email=email).exists()
+    if not username_exists and not email_exists:
+        User.objects.create_user(email=email, username=username)
+    if not username_exists and email_exists:
         return Response(
-            {
-                'email': f'{email}',
-                'username': f'{username}'
-            },
-            status=status.HTTP_200_OK)
+            {'message': 'Вы не можете создать пользователя с этим email'},
+            status=status.HTTP_400_BAD_REQUEST)
+    if username_exists and not email_exists:
+        return Response(
+            {'message': 'Вы не можете создать пользователя с этим username'},
+            status=status.HTTP_400_BAD_REQUEST)
+    user = User.objects.get(username=username)
+    generator = PasswordResetTokenGenerator()
+    auth_code = generator.make_token(user)
+    User.objects.filter(username=username).update(
+        auth_code=auth_code
+    )
+    email_subject = 'Ваш код подтверждения'
+    email_message = (f'Используйте код подтверждения {auth_code},'
+                     'чтобы авторизоваться')
+    send_mail(subject=email_subject, message=email_message,
+              recipient_list=[user.email], from_email=AUTH_FROM_EMAIL)
+    return Response(
+        {
+            'email': f'{email}',
+            'username': f'{username}'
+        },
+        status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -151,8 +150,7 @@ def send_auth_code(request):
 @permission_classes([permissions.AllowAny])
 def get_token(request):
     serializer = AuthCodeSerializer(data=request.data)
-    if not serializer.is_valid(raise_exception=True):
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    serializer.is_valid(raise_exception=True)
     username = request.data['username']
     user = get_object_or_404(User, username=username)
     generator = PasswordResetTokenGenerator()
@@ -183,7 +181,6 @@ def profile(request):
         serializer = ProfileSerializer(request.user)
         return Response(serializer.data, status=status.HTTP_200_OK)
     serializer = ProfileSerializer(request.user, data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
+    return Response(serializer.data, status=status.HTTP_200_OK)
