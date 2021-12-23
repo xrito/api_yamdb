@@ -9,3 +9,7 @@ def validate_year(value):
         raise serializers.ValidationError(
             'Год выпуска не может быть больше текущего!'
         )
+    if year < 0:
+        raise serializers.ValidationError(
+            'Год выпуска не может быть отрицательным числом!'
+        )
