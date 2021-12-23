@@ -14,7 +14,7 @@ from rest_framework.decorators import api_view, permission_classes
 
 
 from reviews.models import Category, Genre, Review, Title
-from api_yamdb.settings import AUTH_CODE_LENGTH, AUTH_FROM_EMAIL
+from api_yamdb.settings import AUTH_FROM_EMAIL
 
 from .filters import Filter
 from .permissions import (AdminOnlyPermission, AdminOrReadOnlyPermission,
