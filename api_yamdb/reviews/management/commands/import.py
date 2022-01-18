@@ -44,6 +44,10 @@ class Command(BaseCommand):
                             id=int(row['id']), username=row['username'],
                             email=row['email'], role=row['role']
                         )
+        for csv_file in glob('./static/data/*.csv'):
+            with open(csv_file, newline='', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
                     if os.path.basename(csv_file) == os.path.basename(
                             r'./static/data/review.csv'):
                         review, created = Review.objects.update_or_create(
@@ -57,6 +61,10 @@ class Command(BaseCommand):
                             id=int(row['id']), title_id=row['title_id'],
                             genre_id=row['genre_id']
                         )
+        for csv_file in glob('./static/data/*.csv'):
+            with open(csv_file, newline='', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
                     if os.path.basename(csv_file) == os.path.basename(
                             r'./static/data/comments.csv'):
                         comment, created = Comment.objects.update_or_create(
