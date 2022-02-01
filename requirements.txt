@@ -3,7 +3,7 @@ certifi==2021.10.8
 charset-normalizer==2.0.9
 Django==2.2.16
 djangorestframework==3.12.4
-djangorestframework-simplejwt==5.0.0
+djangorestframework-simplejwt==4.8.0
 idna==3.3
 iniconfig==1.1.1
 packaging==21.3
@@ -20,4 +20,7 @@ requests==2.26.0
 sqlparse==0.4.2
 toml==0.10.2
 urllib3==1.26.7
-django-filter==2.2.0
+django-filter==2.4.0
+gunicorn==20.0.4
+psycopg2-binary==2.8.6
+asgiref==3.2.10
